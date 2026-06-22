@@ -1,3 +1,4 @@
+import { Home, TableOfContents } from "lucide-react";
 import {
   createRootRoute,
   Link,
@@ -6,28 +7,54 @@ import {
 } from "@tanstack/react-router";
 import { Layout, Menu } from "antd";
 import type { MenuProps } from "antd";
+import { colors } from "../utils/colors";
 const { Sider, Content } = Layout;
 
 export const RootComponent = () => {
   const location = useLocation();
-  const currentKey = location.pathname;
-
   const items: MenuProps["items"] = [
     {
       key: "/",
       label: <Link to="/">Home</Link>,
+      icon: <Home />,
     },
     {
       key: "/content",
-      label: <Link to="/content">Sobre</Link>,
+      label: <Link to="/content">Conteúdo</Link>,
+      icon: <TableOfContents />,
     },
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider theme="light" width={200}>
+    <Layout style={{ minHeight: "100vh", background: "#f8fafc" }}>
+      <Sider
+        width={300}
+        theme="light"
+        style={{
+          background: "#fff",
+          borderRight: "1px solid #e5e7eb",
+        }}
+      >
+        <div
+          style={{
+            padding: "24px 20px",
+            borderBottom: "1px solid #e5e7eb",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+              color: colors.primary,
+              letterSpacing: -0.5,
+            }}
+          >
+            PortoAlize
+          </div>
+        </div>
+
         <Menu
-          selectedKeys={[currentKey]}
+          selectedKeys={[location.pathname]}
           mode="inline"
           items={items}
           style={{ height: "100%", borderRight: 0 }}

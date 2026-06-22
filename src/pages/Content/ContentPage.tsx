@@ -101,7 +101,7 @@ export const ContentPage = () => {
   return (
     <div style={{ padding: "12px" }}>
       <Row gutter={[24, 24]}>
-        <Col xs={24} lg={8}>
+        <Col span={24}>
           <Card
             title={
               <Title level={4} style={{ margin: 0 }}>
@@ -159,11 +159,11 @@ export const ContentPage = () => {
           </Card>
         </Col>
 
-        <Col xs={24} lg={16}>
+        <Col span={24}>
           <Card
             title={
               <Title level={4} style={{ margin: 0 }}>
-                Registros Cadastrados
+                Registros
               </Title>
             }
             variant="borderless"
