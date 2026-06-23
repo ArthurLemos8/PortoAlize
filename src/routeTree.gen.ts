@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as EstablishmenRouteImport } from './routes/establishmen'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as CityRouteImport } from './routes/city'
 import { Route as IndexRouteImport } from './routes/index'
 
+const EstablishmenRoute = EstablishmenRouteImport.update({
+  id: '/establishmen',
+  path: '/establishmen',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContentRoute = ContentRouteImport.update({
   id: '/content',
   path: '/content',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
+  '/establishmen': typeof EstablishmenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
+  '/establishmen': typeof EstablishmenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
+  '/establishmen': typeof EstablishmenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/city' | '/content'
+  fullPaths: '/' | '/city' | '/content' | '/establishmen'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/city' | '/content'
-  id: '__root__' | '/' | '/city' | '/content'
+  to: '/' | '/city' | '/content' | '/establishmen'
+  id: '__root__' | '/' | '/city' | '/content' | '/establishmen'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CityRoute: typeof CityRoute
   ContentRoute: typeof ContentRoute
+  EstablishmenRoute: typeof EstablishmenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/establishmen': {
+      id: '/establishmen'
+      path: '/establishmen'
+      fullPath: '/establishmen'
+      preLoaderRoute: typeof EstablishmenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/content': {
       id: '/content'
       path: '/content'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CityRoute: CityRoute,
   ContentRoute: ContentRoute,
+  EstablishmenRoute: EstablishmenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
