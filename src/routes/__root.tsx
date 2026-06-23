@@ -1,4 +1,4 @@
-import { Home, TableOfContents } from "lucide-react";
+import { Home, TableOfContents, Building2 } from "lucide-react";
 import {
   createRootRoute,
   Link,
@@ -23,6 +23,12 @@ export const RootComponent = () => {
       label: <Link to="/content">Conteúdo</Link>,
       icon: <TableOfContents />,
     },
+    {
+      key: "/city",
+      label: <Link to="/city">Cidades</Link>,
+      icon: <Building2/>,
+    }
+    
   ];
 
   return (

@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ContentRouteImport } from './routes/content'
+import { Route as CityRouteImport } from './routes/city'
 import { Route as IndexRouteImport } from './routes/index'
 
 const ContentRoute = ContentRouteImport.update({
   id: '/content',
   path: '/content',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CityRoute = CityRouteImport.update({
+  id: '/city',
+  path: '/city',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,27 +31,31 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/city': typeof CityRoute
   '/content': typeof ContentRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/city': typeof CityRoute
   '/content': typeof ContentRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/city': typeof CityRoute
   '/content': typeof ContentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/content'
+  fullPaths: '/' | '/city' | '/content'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/content'
-  id: '__root__' | '/' | '/content'
+  to: '/' | '/city' | '/content'
+  id: '__root__' | '/' | '/city' | '/content'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CityRoute: typeof CityRoute
   ContentRoute: typeof ContentRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/content'
       fullPath: '/content'
       preLoaderRoute: typeof ContentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/city': {
+      id: '/city'
+      path: '/city'
+      fullPath: '/city'
+      preLoaderRoute: typeof CityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CityRoute: CityRoute,
   ContentRoute: ContentRoute,
 }
 export const routeTree = rootRouteImport
