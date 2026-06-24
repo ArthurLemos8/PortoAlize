@@ -5,6 +5,8 @@ import { Button, Form, Input, Table, Space, Select, Switch, Row, Col, Card, mess
 import { db } from '../../firebaseConfig'; 
 import { collection, addDoc, getDocs, doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { estabelecimentoSchema, type EstabelecimentoFormData } from './establishmentPageValidations';
+import { DeleteOutlined, EditOutlined  } from "@ant-design/icons";
+
 
 interface EstabelecimentoItem extends EstabelecimentoFormData {
   id: string;
@@ -20,6 +22,8 @@ export const EstabelecimentosPage: React.FC = () => {
   const [listaEstabelecimentos, setListaEstabelecimentos] = useState<EstabelecimentoItem[]>([]);
   const [cidades, setCidades] = useState<OptionCity[]>([]);
   const [idSendoEditado, setIdSendoEditado] = useState<string | null>(null);
+  const [abreGeral, setAbreGeral] = useState('');
+  const [fechaGeral, setFechaGeral] = useState('');
 
   const valoresPadrao: Partial<EstabelecimentoFormData> = {
     ativo: true,
@@ -113,8 +117,8 @@ export const EstabelecimentosPage: React.FC = () => {
       key: 'acoes',
       render: (item: EstabelecimentoItem) => (
         <Space>
-          <Button type="link" onClick={() => editarEstabelecimento(item)}>Editar</Button>
-          <Button danger type="link" onClick={() => removerEstabelecimento(item.id)}>Remover</Button>
+          <Button type="text" icon={<EditOutlined />} onClick={() => editarEstabelecimento(item)}></Button>
+          <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removerEstabelecimento(item.id)}></Button>
         </Space>
       ),
     },
@@ -125,7 +129,7 @@ export const EstabelecimentosPage: React.FC = () => {
       <h2>{idSendoEditado ? "Editar Estabelecimento" : "Cadastrar Estabelecimento"}</h2>
 
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-        <Row gutter={16}>
+        <Row gutter={[24,24]}>
           <Col span={12}>
             <Form.Item label="Nome" validateStatus={errors.nome ? "error" : ""} help={errors.nome?.message}>
               <Controller name="nome" control={control} render={({ field }) => <Input {...field} />} />
@@ -176,18 +180,68 @@ export const EstabelecimentosPage: React.FC = () => {
         </Form.Item>
 
         <Card title="Horários de Funcionamento" size="small" style={{ marginBottom: 24 }}>
-          {WeekDays.map(dia => (
-            <Row gutter={16} key={dia} style={{ marginBottom: 8, alignItems: 'center' }}>
-              <Col span={4}><strong>{dia.toUpperCase()}:</strong></Col>
-              <Col span={4}>
-                <Controller name={`horario_funcionamento.${dia}.abre`} control={control} render={({ field }) => <Input {...field} placeholder="Abre (ex: 08:00)" />} />
-              </Col>
-              <Col span={4}>
-                <Controller name={`horario_funcionamento.${dia}.fecha`} control={control} render={({ field }) => <Input {...field} placeholder="Fecha (ex: 18:00)" />} />
-              </Col>
-            </Row>
-          ))}
-        </Card>
+  
+  <Row gutter={16} style={{ marginBottom: 20, paddingBottom: 15, borderBottom: '1px dashed #f0f0f0', alignItems: 'flex-end' }}>
+    <Col span={6}>
+      <Form.Item label={<strong style={{ color: '#1890ff' }}>Abre (Atalho)</strong>} style={{ marginBottom: 0 }}>
+        <Input 
+          placeholder="Ex: 08:00" 
+          value={abreGeral} 
+          onChange={(e) => setAbreGeral(e.target.value)} 
+        />
+      </Form.Item>
+    </Col>
+    <Col span={6}>
+      <Form.Item label={<strong style={{ color: '#1890ff' }}>Fecha (Atalho)</strong>} style={{ marginBottom: 0 }}>
+        <Input 
+          placeholder="Ex: 18:00" 
+          value={fechaGeral} 
+          onChange={(e) => setFechaGeral(e.target.value)} 
+        />
+      </Form.Item>
+    </Col>
+    <Col span={6}>
+      <Button 
+        type="dashed" 
+        style={{ color: '#1890ff', borderColor: '#1890ff' }}
+        onClick={() => {
+          if (!abreGeral || !fechaGeral) {
+            message.warning("Preencha o Abre e Fecha Geral antes de aplicar!");
+            return;
+          }
+          WeekDays.forEach(dia => {
+            setValue(`horario_funcionamento.${dia}.abre`, abreGeral, { shouldValidate: true });
+            setValue(`horario_funcionamento.${dia}.fecha`, fechaGeral, { shouldValidate: true });
+          });
+
+          message.success("Horários aplicados para a semana toda!");
+        }}
+      >
+        Aplicar a todos os dias
+      </Button>
+    </Col>
+  </Row>
+
+  {WeekDays.map(dia => (
+    <Row gutter={16} key={dia} style={{ marginBottom: 8, alignItems: 'center' }}>
+      <Col span={4}><strong>{dia.toUpperCase()}:</strong></Col>
+      <Col span={4}>
+        <Controller 
+          name={`horario_funcionamento.${dia}.abre`} 
+          control={control} 
+          render={({ field }) => <Input {...field} placeholder="Abre (ex: 08:00)" />} 
+        />
+      </Col>
+      <Col span={4}>
+        <Controller 
+          name={`horario_funcionamento.${dia}.fecha`} 
+          control={control} 
+          render={({ field }) => <Input {...field} placeholder="Fecha (ex: 18:00)" />} 
+        />
+      </Col>
+    </Row>
+  ))}
+</Card>
 
         <Button type="primary" htmlType="submit" style={{ marginBottom: 32 }}>
           {idSendoEditado ? "Salvar Alterações" : "Cadastrar Estabelecimento"}

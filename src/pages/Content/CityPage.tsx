@@ -5,6 +5,7 @@ import { Button, Form, Input, Table, Space, message } from 'antd';
 import { db } from '../../firebaseConfig'; 
 import { collection, addDoc, getDocs, doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { cidadeSchema, type CidadeFormData } from './cityPageValidations';
+import { DeleteOutlined,  } from "@ant-design/icons";
 
 interface CidadeItem extends CidadeFormData {
   id: string;
@@ -72,12 +73,6 @@ export const CidadesPage: React.FC = () => {
     }
   };
 
-  const editarCidade = (item: CidadeItem) => {
-    setValue("nome", item.nome);
-    setValue("estado", item.estado);
-    setIdSendoEditado(item.id);
-  };
-
   const columns = [
     { title: 'Cidade', dataIndex: 'nome', key: 'nome' },
     { title: 'Estado', dataIndex: 'estado', key: 'estado' },
@@ -86,15 +81,14 @@ export const CidadesPage: React.FC = () => {
       key: 'acoes',
       render: (item: CidadeItem) => (
         <Space>
-          <Button type="link" onClick={() => editarCidade(item)}>Editar</Button>
-          <Button danger type="link" onClick={() => removerCidade(item.id)}>Remover</Button>
+          <Button type="text" danger icon={<DeleteOutlined />}  onClick={() => removerCidade(item.id)}></Button>
         </Space>
       ),
     },
   ];
 
   return (
-    <div style={{ padding: '24px', maxWidth: '800px' }}>
+    <div style={{ padding: '24px', maxWidth: '100%' }}>
       <h2>{idSendoEditado ? "Editar Cidade" : "Cadastrar Nova Cidade"}</h2>
       
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)} style={{ marginBottom: '32px' }}>
