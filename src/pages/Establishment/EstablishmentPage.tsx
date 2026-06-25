@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Table, Space, Select, Switch, Row, Col, Card, message } from 'antd';
@@ -18,7 +18,7 @@ interface OptionCity{
 }
 const WeekDays = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'] as const;
 
-export const EstabelecimentosPage: React.FC = () => {
+export const EstablishmentPage = () => {
   const [listaEstabelecimentos, setListaEstabelecimentos] = useState<EstabelecimentoItem[]>([]);
   const [cidades, setCidades] = useState<OptionCity[]>([]);
   const [idSendoEditado, setIdSendoEditado] = useState<string | null>(null);
@@ -181,16 +181,16 @@ export const EstabelecimentosPage: React.FC = () => {
 
         <Card title="Horários de Funcionamento" size="small" style={{ marginBottom: 24 }}>
   
-  <Row gutter={16} style={{ marginBottom: 20, paddingBottom: 15, borderBottom: '1px dashed #f0f0f0', alignItems: 'flex-end' }}>
-    <Col span={6}>
-      <Form.Item label={<strong style={{ color: '#1890ff' }}>Abre (Atalho)</strong>} style={{ marginBottom: 0 }}>
-        <Input 
-          placeholder="Ex: 08:00" 
-          value={abreGeral} 
-          onChange={(e) => setAbreGeral(e.target.value)} 
-        />
-      </Form.Item>
-    </Col>
+    <Row gutter={16} style={{ marginBottom: 20, paddingBottom: 15, borderBottom: '1px dashed #f0f0f0', alignItems: 'flex-end' }}>
+      <Col span={6}>
+        <Form.Item label={<strong style={{ color: '#1890ff' }}>Abre (Atalho)</strong>} style={{ marginBottom: 0 }}>
+          <Input 
+            placeholder="Ex: 08:00" 
+            value={abreGeral} 
+            onChange={(e) => setAbreGeral(e.target.value)} 
+          />
+        </Form.Item>
+      </Col>
     <Col span={6}>
       <Form.Item label={<strong style={{ color: '#1890ff' }}>Fecha (Atalho)</strong>} style={{ marginBottom: 0 }}>
         <Input 

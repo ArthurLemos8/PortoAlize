@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Table, Space, message } from 'antd';
@@ -11,11 +11,11 @@ interface CidadeItem extends CidadeFormData {
   id: string;
 }
 
-export const CidadesPage: React.FC = () => {
+export const CityPage = () => {
   const [listaCidades, setListaCidades] = useState<CidadeItem[]>([]);
   const [idSendoEditado, setIdSendoEditado] = useState<string | null>(null);
 
-  const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<CidadeFormData>({
+  const { control, handleSubmit, reset, formState: { errors } } = useForm<CidadeFormData>({
     resolver: zodResolver(cidadeSchema),
   });
 
