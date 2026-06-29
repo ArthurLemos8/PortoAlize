@@ -1,0 +1,6 @@
+import {createFileRoute} from '@tanstack/react-router';
+import { CategoryPage } from '../pages/Category/CategoryPage';
+
+export const Route = createFileRoute('/category')({
+    component: CategoryPage,
+})

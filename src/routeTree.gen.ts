@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as EstablishmenRouteImport } from './routes/establishmen'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as CityRouteImport } from './routes/city'
+import { Route as CategoryRouteImport } from './routes/category'
 import { Route as IndexRouteImport } from './routes/index'
 
 const EstablishmenRoute = EstablishmenRouteImport.update({
@@ -29,6 +30,11 @@ const CityRoute = CityRouteImport.update({
   path: '/city',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CategoryRoute = CategoryRouteImport.update({
+  id: '/category',
+  path: '/category',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/category': typeof CategoryRoute
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
   '/establishmen': typeof EstablishmenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/category': typeof CategoryRoute
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
   '/establishmen': typeof EstablishmenRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/category': typeof CategoryRoute
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
   '/establishmen': typeof EstablishmenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/city' | '/content' | '/establishmen'
+  fullPaths: '/' | '/category' | '/city' | '/content' | '/establishmen'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/city' | '/content' | '/establishmen'
-  id: '__root__' | '/' | '/city' | '/content' | '/establishmen'
+  to: '/' | '/category' | '/city' | '/content' | '/establishmen'
+  id: '__root__' | '/' | '/category' | '/city' | '/content' | '/establishmen'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CategoryRoute: typeof CategoryRoute
   CityRoute: typeof CityRoute
   ContentRoute: typeof ContentRoute
   EstablishmenRoute: typeof EstablishmenRoute
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/category': {
+      id: '/category'
+      path: '/category'
+      fullPath: '/category'
+      preLoaderRoute: typeof CategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CategoryRoute: CategoryRoute,
   CityRoute: CityRoute,
   ContentRoute: ContentRoute,
   EstablishmenRoute: EstablishmenRoute,

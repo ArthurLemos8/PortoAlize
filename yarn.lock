@@ -1470,7 +1470,7 @@ ansis@^4.1.0:
   resolved "https://registry.npmjs.org/ansis/-/ansis-4.3.1.tgz"
   integrity sha512-BJ8/l4R5LRE7hW9WdSuGYrLSHi2ynxeFpDFbH0K/CgNeY/tyhk+vO6TYxXC5r5CpUhNVX310xzPsN/H9lCdfOA==
 
-antd@^6.4.3:
+antd@^6.4.3, antd@>=5:
   version "6.4.3"
   resolved "https://registry.npmjs.org/antd/-/antd-6.4.3.tgz"
   integrity sha512-6H2avkxCGfxcF67r3J2mwm9Ck50el1pks/73vfM1wDsPL/tPtj5vHuauMgJFnrqmq7CH3g8aoZ0VBQbt+jpAsw==
@@ -2206,7 +2206,7 @@ re2js@^0.4.2:
   resolved "https://registry.npmjs.org/re2js/-/re2js-0.4.3.tgz"
   integrity sha512-EuNmh7jurhHEE8Ge/lBo9JuMLb3qf866Xjjfyovw3wPc7+hlqDkZq4LwhrCQMEI+ARWfrKrHozEndzlpNT0WDg==
 
-react-dom@*, "react-dom@^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", react-dom@^19.2.6, react-dom@>=16.0.0, react-dom@>=16.11.0, react-dom@>=16.9.0, react-dom@>=18, react-dom@>=18.0.0, "react-dom@>=18.0.0 || >=19.0.0":
+react-dom@*, "react-dom@^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", react-dom@^19.2.6, react-dom@>=16.0.0, react-dom@>=16.11.0, react-dom@>=16.9.0, react-dom@>=17, react-dom@>=18, react-dom@>=18.0.0, "react-dom@>=18.0.0 || >=19.0.0":
   version "19.2.7"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-19.2.7.tgz"
   integrity sha512-t0BRVXvbiE/o20Hfw669rLbMCDWtYZLvmJigy2f0MxsXF+71pxhR3xOkspmsO8h3ZlNzyibAmtCa3l4lYKk6gQ==
@@ -2223,7 +2223,7 @@ react-is@^18.2.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.3.1.tgz"
   integrity sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==
 
-react@*, "react@^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.8.0 || ^17 || ^18 || ^19", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", react@^19.2.6, react@^19.2.7, react@>=16.0.0, react@>=16.11.0, react@>=16.9.0, react@>=18, react@>=18.0.0, "react@>=18.0.0 || >=19.0.0":
+react@*, "react@^0.14.0 || ^15.0.1 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react@^16.8.0 || ^17 || ^18 || ^19", "react@^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", react@^19.2.6, react@^19.2.7, react@>=16.0.0, react@>=16.11.0, react@>=16.9.0, react@>=17, react@>=18, react@>=18.0.0, "react@>=18.0.0 || >=19.0.0":
   version "19.2.7"
   resolved "https://registry.npmjs.org/react/-/react-19.2.7.tgz"
   integrity sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==
@@ -2415,6 +2415,11 @@ uri-js@^4.2.2:
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   dependencies:
     punycode "^2.1.0"
+
+use-mask-input@^3.10.2:
+  version "3.10.2"
+  resolved "https://registry.npmjs.org/use-mask-input/-/use-mask-input-3.10.2.tgz"
+  integrity sha512-zzR/+Tre8i+xIAR7on6td9Pf+XnGmDzH2K7KTn3eCOzMPehu1OBRQ2F1v7inI2bqYoRFEBa2iuiwcB9IegO/jg==
 
 use-sync-external-store@^1.6.0:
   version "1.6.0"

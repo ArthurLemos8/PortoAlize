@@ -27,12 +27,12 @@ import {
 
 const { Title } = Typography;
 
-interface CadastroItem extends ContentValues {
+interface RegisterItem extends ContentValues {
   id: string;
 }
 
 export const ContentPage = () => {
-  const [listaCadastros, setListaCadastros] = useState<CadastroItem[]>([]);
+  const [registerList, setListaCadastros] = useState<RegisterItem[]>([]);
   const [loadingTable, setLoadingTable] = useState(true);
 
   const {
@@ -57,7 +57,7 @@ export const ContentPage = () => {
         description: "Cadastro realizado com sucesso.",
       });
       reset();
-    } catch (error) {
+    } catch  {
       notification.error({
         message: "Erro",
         description: "Erro ao realizar cadastro.",
@@ -69,7 +69,7 @@ export const ContentPage = () => {
     try {
       await deleteDoc(doc(db, "cadastro", id));
       notification.success({ message: "Registro removido com sucesso." });
-    } catch (error) {
+    } catch  {
       notification.error({ message: "Erro ao remover registro." });
     }
   };
@@ -83,7 +83,7 @@ export const ContentPage = () => {
         const dados = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
-        })) as CadastroItem[];
+        })) as RegisterItem[];
 
         setListaCadastros(dados);
         setLoadingTable(false);
@@ -186,7 +186,7 @@ export const ContentPage = () => {
                   title: "Ações",
                   key: "actions",
                   width: "15%",
-                  render: (_: any, record: CadastroItem) => (
+                  render: (_: any, record: RegisterItem) => (
                     <Popconfirm
                       title="Tem certeza que deseja excluir?"
                       onConfirm={() => handleDelete(record.id)}
@@ -198,7 +198,7 @@ export const ContentPage = () => {
                   ),
                 },
               ]}
-              dataSource={listaCadastros}
+              dataSource={registerList}
               rowKey="id"
               loading={loadingTable}
               pagination={{ pageSize: 5 }}

@@ -6,9 +6,10 @@ import { db } from '../../firebaseConfig';
 import { collection, addDoc, getDocs, doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { estabelecimentoSchema, type EstabelecimentoFormData } from './establishmentPageValidations';
 import { DeleteOutlined, EditOutlined  } from "@ant-design/icons";
+import { withMask } from 'use-mask-input';
 
 
-interface EstabelecimentoItem extends EstabelecimentoFormData {
+interface EstablishmentItem extends EstabelecimentoFormData {
   id: string;
 }
 interface OptionCity{
@@ -16,81 +17,106 @@ interface OptionCity{
   nome: string;
   estado: string;
 }
+
+interface OptionCategory{
+  id: string;
+  nome: string;
+}
+
 const WeekDays = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo'] as const;
+type Hours = Record<typeof WeekDays[number], { abre: string; fecha: string }>;
+
 
 export const EstablishmentPage = () => {
-  const [listaEstabelecimentos, setListaEstabelecimentos] = useState<EstabelecimentoItem[]>([]);
-  const [cidades, setCidades] = useState<OptionCity[]>([]);
-  const [idSendoEditado, setIdSendoEditado] = useState<string | null>(null);
-  const [abreGeral, setAbreGeral] = useState('');
-  const [fechaGeral, setFechaGeral] = useState('');
+  const [establishmentPage, setestablishmentPage] = useState<EstablishmentItem[]>([]);
+  const [citys, setCity] = useState<OptionCity[]>([]);
+  const [idBeingedit, setidBeingedit] = useState<string | null>(null);
+  const [opensGeneral, setOpensgGeneral] = useState('');
+  const [closeGeneral, setCloseGeneral] = useState('');
+  const [categoryList, setCategoryList] = useState<OptionCategory[]>([]);
 
-  const valoresPadrao: Partial<EstabelecimentoFormData> = {
+  const defaultValues: Partial<EstabelecimentoFormData> = {
     ativo: true,
     horario_funcionamento: WeekDays.reduce((acc, dia) => {
       acc[dia] = { abre: '08:00', fecha: '18:00' };
       return acc;
-    }, {} as unknown),
+    }, {} as Hours),
   };
   const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm<EstabelecimentoFormData>({
     resolver: zodResolver(estabelecimentoSchema),
-    defaultValues: valoresPadrao,
+    defaultValues: defaultValues,
   });
+
+  const onSubmit = async (data: EstabelecimentoFormData) => {
+    try {
+      if (idBeingedit) {
+        await setDoc(doc(db, "estabelecimentos", idBeingedit), data);
+        setestablishmentPage(ant => ant.map(item => item.id === idBeingedit ? { id: idBeingedit, ...data } : item));
+        setidBeingedit(null);
+        message.success("Estabelecimento atualizado!");
+      } else {
+        const docRef = await addDoc(collection(db, "estabelecimentos"), data);
+        setestablishmentPage(ant => [...ant, { id: docRef.id, ...data }]);
+        message.success("Estabelecimento cadastrado!");
+      }
+      reset(defaultValues);
+    } catch {
+      message.error("Erro ao salvar.");
+    }
+  };
 
   useEffect(() => {
     async function loadingDados() {
       try {
 
-        const cidadesSnapshot = await getDocs(collection(db, "cidades"));
+        const cidadesSnapshot = await getDocs(collection(db, "citys"));
         const listaCids: OptionCity[] = [];
         cidadesSnapshot.forEach(doc => {
           listaCids.push({ id: doc.id, ...doc.data() as any });
         });
-        setCidades(listaCids);
+        setCity(listaCids);
 
         const estSnapshot = await getDocs(collection(db, "estabelecimentos"));
-        const listaEsts: EstabelecimentoItem[] = [];
+        const listaEsts: EstablishmentItem[] = [];
         estSnapshot.forEach(doc => {
           listaEsts.push({ id: doc.id, ...doc.data() as EstabelecimentoFormData });
         });
-        setListaEstabelecimentos(listaEsts);
-      } catch (error) {
+        setestablishmentPage(listaEsts);
+      } catch  {
         message.error("Erro ao carregar dados do Firebase");
       }
     }
     loadingDados();
-  }, []);
 
-  const onSubmit = async (data: EstabelecimentoFormData) => {
+    async function loadCategories() {
     try {
-      if (idSendoEditado) {
-        await setDoc(doc(db, "estabelecimentos", idSendoEditado), data);
-        setListaEstabelecimentos(ant => ant.map(item => item.id === idSendoEditado ? { id: idSendoEditado, ...data } : item));
-        setIdSendoEditado(null);
-        message.success("Estabelecimento atualizado!");
-      } else {
-        const docRef = await addDoc(collection(db, "estabelecimentos"), data);
-        setListaEstabelecimentos(ant => [...ant, { id: docRef.id, ...data }]);
-        message.success("Estabelecimento cadastrado!");
-      }
-      reset(valoresPadrao);
+      const querySnapshot = await getDocs(collection(db, "categorias"));
+      const dados: OptionCategory[] = [];
+      querySnapshot.forEach((doc) => {
+        dados.push({ id: doc.id, nome: doc.data().nome });
+      });
+      setCategoryList(dados);
     } catch (error) {
-      message.error("Erro ao salvar.");
+      console.error("Erro ao buscar categorias para o select:", error);
     }
-  };
+  }
+  loadCategories();
+}, []);
 
-  const removerEstabelecimento = async (id: string) => {
+
+
+  const removeEstablishment = async (id: string) => {
     try {
       await deleteDoc(doc(db, "estabelecimentos", id));
-      setListaEstabelecimentos(ant => ant.filter(item => item.id !== id));
+      setestablishmentPage(ant => ant.filter(item => item.id !== id));
       message.success("Removido com sucesso!");
-    } catch (error) {
+    } catch {
       message.error("Erro ao remover.");
     }
   };
 
-  const editarEstabelecimento = (item: EstabelecimentoItem) => {
-    setIdSendoEditado(item.id);
+  const editEstablishment = (item: EstablishmentItem) => {
+    setidBeingedit(item.id);
     reset(item); 
   };
 
@@ -102,7 +128,7 @@ export const EstablishmentPage = () => {
       dataIndex: 'cidade', 
       key: 'cidade',
       render: (cidadeId: string) => {
-        const cid = cidades.find(c => c.id === cidadeId);
+        const cid = citys.find(c => c.id === cidadeId);
         return cid ? `${cid.nome} - ${cid.estado}` : 'Cidade não encontrada';
       }
     },
@@ -115,10 +141,10 @@ export const EstablishmentPage = () => {
     {
       title: 'Ações',
       key: 'acoes',
-      render: (item: EstabelecimentoItem) => (
+      render: (item: EstablishmentItem) => (
         <Space>
-          <Button type="text" icon={<EditOutlined />} onClick={() => editarEstabelecimento(item)}></Button>
-          <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removerEstabelecimento(item.id)}></Button>
+          <Button type="text" icon={<EditOutlined />} onClick={() => editEstablishment(item)}></Button>
+          <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeEstablishment(item.id)}></Button>
         </Space>
       ),
     },
@@ -126,7 +152,7 @@ export const EstablishmentPage = () => {
 
   return (
     <div style={{ padding: '24px' }}>
-      <h2>{idSendoEditado ? "Editar Estabelecimento" : "Cadastrar Estabelecimento"}</h2>
+      <h2>{idBeingedit ? "Editar Estabelecimento" : "Cadastrar Estabelecimento"}</h2>
 
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Row gutter={[24,24]}>
@@ -142,7 +168,7 @@ export const EstablishmentPage = () => {
                 control={control} 
                 render={({ field }) => (
                   <Select {...field} placeholder="Selecione uma cidade">
-                    {cidades.map(cid => (
+                    {citys.map(cid => (
                       <Select.Option key={cid.id} value={cid.id}>{cid.nome} - {cid.estado}</Select.Option>
                     ))}
                   </Select>
@@ -160,12 +186,19 @@ export const EstablishmentPage = () => {
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item label="Categoria" validateStatus={errors.categoria ? "error" : ""} help={errors.categoria?.message}>
-              <Controller name="categoria" control={control} render={({ field }) => <Input {...field} placeholder="Ex: Restaurante" />} />
+              <Controller name="categoria" control={control} render={({ field }) => (
+                <Select {...field} placeholder="Selecione uma categoria">
+                  {categoryList.map(cat => (
+                    <Select.Option key={cat.id} value={cat.id}>{cat.nome}</Select.Option>
+                  ))}
+                </Select>
+              )} />
+             
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item label="Telefone" validateStatus={errors.telefone ? "error" : ""} help={errors.telefone?.message}>
-              <Controller name="telefone" control={control} render={({ field }) => <Input {...field} />} />
+              <Controller name="telefone" control={control} render={({ field: { value, onChange, onBlur } }) => <Input value={value} onChange={onChange} onBlur={onBlur} ref={withMask('(99) 99999-9999')as unknown as React.Ref<Element>} placeholder="(99) 99999-9999" />} />
             </Form.Item>
           </Col>
           <Col span={8}>
@@ -186,8 +219,8 @@ export const EstablishmentPage = () => {
         <Form.Item label={<strong style={{ color: '#1890ff' }}>Abre (Atalho)</strong>} style={{ marginBottom: 0 }}>
           <Input 
             placeholder="Ex: 08:00" 
-            value={abreGeral} 
-            onChange={(e) => setAbreGeral(e.target.value)} 
+            value={opensGeneral} 
+            onChange={(e) => setOpensgGeneral(e.target.value)} 
           />
         </Form.Item>
       </Col>
@@ -195,8 +228,8 @@ export const EstablishmentPage = () => {
       <Form.Item label={<strong style={{ color: '#1890ff' }}>Fecha (Atalho)</strong>} style={{ marginBottom: 0 }}>
         <Input 
           placeholder="Ex: 18:00" 
-          value={fechaGeral} 
-          onChange={(e) => setFechaGeral(e.target.value)} 
+          value={closeGeneral} 
+          onChange={(e) => setCloseGeneral(e.target.value)} 
         />
       </Form.Item>
     </Col>
@@ -205,13 +238,13 @@ export const EstablishmentPage = () => {
         type="dashed" 
         style={{ color: '#1890ff', borderColor: '#1890ff' }}
         onClick={() => {
-          if (!abreGeral || !fechaGeral) {
+          if (!opensGeneral || !closeGeneral) {
             message.warning("Preencha o Abre e Fecha Geral antes de aplicar!");
             return;
           }
           WeekDays.forEach(dia => {
-            setValue(`horario_funcionamento.${dia}.abre`, abreGeral, { shouldValidate: true });
-            setValue(`horario_funcionamento.${dia}.fecha`, fechaGeral, { shouldValidate: true });
+            setValue(`horario_funcionamento.${dia}.abre`, opensGeneral, { shouldValidate: true });
+            setValue(`horario_funcionamento.${dia}.fecha`, closeGeneral, { shouldValidate: true });
           });
 
           message.success("Horários aplicados para a semana toda!");
@@ -244,13 +277,13 @@ export const EstablishmentPage = () => {
 </Card>
 
         <Button type="primary" htmlType="submit" style={{ marginBottom: 32 }}>
-          {idSendoEditado ? "Salvar Alterações" : "Cadastrar Estabelecimento"}
+          {idBeingedit ? "Salvar Alterações" : "Cadastrar Estabelecimento"}
         </Button>
-        {idSendoEditado && <Button style={{ marginLeft: 8 }} onClick={() => { setIdSendoEditado(null); reset(valoresPadrao); }}>Cancelar</Button>}
+        {idBeingedit && <Button style={{ marginLeft: 8 }} onClick={() => { setidBeingedit(null); reset(defaultValues); }}>Cancelar</Button>}
       </Form>
 
       <h3>Estabelecimentos Cadastrados</h3>
-      <Table columns={columns} dataSource={listaEstabelecimentos} rowKey="id" />
+      <Table columns={columns} dataSource={establishmentPage} rowKey="id" />
     </div>
   );
 };

@@ -12,15 +12,15 @@ interface CidadeItem extends CidadeFormData {
 }
 
 export const CityPage = () => {
-  const [listaCidades, setListaCidades] = useState<CidadeItem[]>([]);
-  const [idSendoEditado, setIdSendoEditado] = useState<string | null>(null);
+  const [cityList, setCityList] = useState<CidadeItem[]>([]);
+  const [idBeingEdited, setIdBeingEdit] = useState<string | null>(null);
 
   const { control, handleSubmit, reset, formState: { errors } } = useForm<CidadeFormData>({
     resolver: zodResolver(cidadeSchema),
   });
 
   useEffect(() => {
-    async function carregarCidades() {
+    async function donloadCity() {
       try {
         const colecaoRef = collection(db, "cidades");
         const querySnapshot = await getDocs(colecaoRef);
@@ -29,30 +29,30 @@ export const CityPage = () => {
         querySnapshot.forEach((doc) => {
           dados.push({ id: doc.id, ...(doc.data() as CidadeFormData) });
         });
-        setListaCidades(dados);
+        setCityList(dados);
       } catch (error) {
         console.error("Erro ao buscar cidades:", error);
       }
     }
-    carregarCidades();
+    donloadCity();
   }, []);
 
   const onSubmit = async (data: CidadeFormData) => {
     try {
-      if (idSendoEditado) {
-        const docRef = doc(db, "cidades", idSendoEditado);
+      if (idBeingEdited) {
+        const docRef = doc(db, "cidades", idBeingEdited);
         await setDoc(docRef, data);
         
-        setListaCidades((anterior) =>
-          anterior.map((item) => (item.id === idSendoEditado ? { id: idSendoEditado, ...data } : item))
+        setCityList((previous) =>
+          previous.map((item) => (item.id === idBeingEdited ? { id: idBeingEdited, ...data } : item))
         );
-        setIdSendoEditado(null);
+        setIdBeingEdit(null);
         message.success("Cidade atualizada com sucesso!");
       } else {
         const colecaoRef = collection(db, "cidades");
         const docRef = await addDoc(colecaoRef, data);
         
-        setListaCidades((anterior) => [...anterior, { id: docRef.id, ...data }]);
+        setCityList((previous) => [...previous, { id: docRef.id, ...data }]);
         message.success("Cidade cadastrada com sucesso!");
       }
       reset();
@@ -62,13 +62,13 @@ export const CityPage = () => {
     }
   };
 
-  const removerCidade = async (id: string) => {
+  const removeCity = async (id: string) => {
     try {
       const docRef = doc(db, "cidades", id);
       await deleteDoc(docRef);
-      setListaCidades((anterior) => anterior.filter((item) => item.id !== id));
+      setCityList((previous) => previous.filter((item) => item.id !== id));
       message.success("Cidade removida!");
-    } catch (error) {
+    } catch  {
       message.error("Erro ao remover.");
     }
   };
@@ -81,7 +81,7 @@ export const CityPage = () => {
       key: 'acoes',
       render: (item: CidadeItem) => (
         <Space>
-          <Button type="text" danger icon={<DeleteOutlined />}  onClick={() => removerCidade(item.id)}></Button>
+          <Button type="text" danger icon={<DeleteOutlined />}  onClick={() => removeCity(item.id)}></Button>
         </Space>
       ),
     },
@@ -89,7 +89,7 @@ export const CityPage = () => {
 
   return (
     <div style={{ padding: '24px', maxWidth: '100%' }}>
-      <h2>{idSendoEditado ? "Editar Cidade" : "Cadastrar Nova Cidade"}</h2>
+      <h2>{idBeingEdited ? "Editar Cidade" : "Cadastrar Nova Cidade"}</h2>
       
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)} style={{ marginBottom: '32px' }}>
         <Form.Item label="Nome da Cidade" validateStatus={errors.nome ? "error" : ""} help={errors.nome?.message}>
@@ -101,17 +101,19 @@ export const CityPage = () => {
         </Form.Item>
 
         <Button type="primary" htmlType="submit">
-          {idSendoEditado ? "Salvar Alterações" : "Cadastrar"}
+          {idBeingEdited ? "Salvar Alterações" : "Cadastrar"}
         </Button>
         
-        {idSendoEditado && (
-          <Button style={{ marginLeft: '8px' }} onClick={() => { setIdSendoEditado(null); reset(); }}>
+        {idBeingEdited && (
+          <Button style={{ marginLeft: '8px' }} onClick={() => { setIdBeingEdit(null); reset(); }}>
             Cancelar
           </Button>
         )}
       </Form>
       <h3>Cidades Cadastradas</h3>
-      <Table columns={columns} dataSource={listaCidades} rowKey="id" />
+      <Table columns={columns} dataSource={cityList
+  
+      } rowKey="id" />
     </div>
   );
 

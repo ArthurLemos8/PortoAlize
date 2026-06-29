@@ -20,6 +20,7 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.79.0",
+    "use-mask-input": "^3.10.2",
     "yarn": "^1.22.22",
     "zod": "^4.4.3"
   },
