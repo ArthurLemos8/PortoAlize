@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import logo from "../assets/images/logo.png";
+import "./index.css";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
@@ -6,8 +8,11 @@ export const Route = createFileRoute("/")({
 
 function HomeComponent() {
   return (
-    <div style={{ padding: "10px" }}>
-      <h3>Bem-vindo à Home!</h3>
+    <div className="home">
+      <h1>Bem-vindo ao PortoAlize!</h1>
+      <h3>Cadastre estabelecimentos, novos lugares e mostre tudo o que sua região tem a ofercer</h3>
+      <img src={logo} alt="Logo" className="logo" />
     </div>
+    
   );
 }
