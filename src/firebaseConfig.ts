@@ -1,14 +1,13 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-
 const firebaseConfig = {
-  apiKey: "AIzaSyCtLBMffb7keSa_AEQA-ZznLnbc00fVpbc",
-  authDomain: "portoalize-bc7e1.firebaseapp.com",
-  projectId: "portoalize-bc7e1",
-  storageBucket: "portoalize-bc7e1.firebasestorage.app",
-  messagingSenderId: "993288450534",
-  appId: "1:993288450534:web:7b12a6de7d790734efe627",
-  measurementId: "G-E7BWVGRWB9"
+  apiKey: "AIzaSyCcT3AWiRp93FzFArbt1MK1EKmlQbTsHnM",
+  authDomain: "portoalize-63c2d.firebaseapp.com",
+  projectId: "portoalize-63c2d",
+  storageBucket: "portoalize-63c2d.firebasestorage.app",
+  messagingSenderId: "156163010837",
+  appId: "1:156163010837:web:47b98efcf7a1b1e50df91c",
+  measurementId: "G-RTKY6XZ00Z"
 };
 
 const app = initializeApp(firebaseConfig);
