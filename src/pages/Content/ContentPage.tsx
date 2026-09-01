@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
@@ -22,8 +21,8 @@ import {
   addDoc,
   deleteDoc,
   doc,
-  onSnapshot,
 } from "firebase/firestore";
+import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
 
 const { Title } = Typography;
 
@@ -32,8 +31,7 @@ interface RegisterItem extends ContentValues {
 }
 
 export const ContentPage = () => {
-  const [registerList, setListaCadastros] = useState<RegisterItem[]>([]);
-  const [loadingTable, setLoadingTable] = useState(true);
+  const { data: registerList, loading, refetch } = useFirestoreQuery<RegisterItem>("cadastro");
 
   const {
     control,
@@ -57,6 +55,7 @@ export const ContentPage = () => {
         description: "Cadastro realizado com sucesso.",
       });
       reset();
+      await refetch();
     } catch  {
       notification.error({
         message: "Erro",
@@ -66,37 +65,15 @@ export const ContentPage = () => {
   };
 
   const handleDelete = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, "cadastro", id));
-      notification.success({ message: "Registro removido com sucesso." });
-    } catch  {
-      notification.error({ message: "Erro ao remover registro." });
-    }
-  };
+  try {
+    await deleteDoc(doc(db, "cadastro", id));
+    await refetch();
+    notification.success({ message: "Registro removido com sucesso." });
+  } catch {
+    notification.error({ message: "Erro ao remover registro." });
+  }
+};
 
-  useEffect(() => {
-    const colecaocRef = collection(db, "cadastro");
-
-    const unsubscribe = onSnapshot(
-      colecaocRef,
-      (snapshot) => {
-        const dados = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as RegisterItem[];
-
-        setListaCadastros(dados);
-        setLoadingTable(false);
-      },
-      (error) => {
-        console.error(error);
-        notification.error({ message: "Erro ao carregar dados da tabela." });
-        setLoadingTable(false);
-      },
-    );
-
-    return () => unsubscribe();
-  }, []);
 
   return (
     <div style={{ padding: "12px" }}>
@@ -174,33 +151,34 @@ export const ContentPage = () => {
                   title: "Nome",
                   dataIndex: "username",
                   key: "username",
-                  width: "30%",
                 },
                 {
                   title: "Descrição",
                   dataIndex: "description",
                   key: "description",
-                  width: "55%",
                 },
                 {
                   title: "Ações",
                   key: "actions",
-                  width: "15%",
-                  render: (_: any, record: RegisterItem) => (
-                    <Popconfirm
-                      title="Tem certeza que deseja excluir?"
-                      onConfirm={() => handleDelete(record.id)}
-                      okText="Sim"
-                      cancelText="Não"
-                    >
-                      <Button type="text" danger icon={<DeleteOutlined />} />
-                    </Popconfirm>
+                  render: (_, record) => (
+                    <Space>
+                      <Popconfirm
+                        title="Tem certeza que deseja remover este registro?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Sim"
+                        cancelText="Não"
+                      >
+                        <Button type="primary" danger>
+                          <DeleteOutlined />
+                        </Button>
+                      </Popconfirm>
+                    </Space>
                   ),
                 },
               ]}
-              dataSource={registerList}
+              dataSource={registerList ?? []}
               rowKey="id"
-              loading={loadingTable}
+              loading={loading}
               pagination={{ pageSize: 5 }}
             />
           </Card>

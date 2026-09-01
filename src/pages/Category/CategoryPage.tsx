@@ -1,11 +1,12 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Table, Space, message } from 'antd';
 import { db } from '../../firebaseConfig'; 
-import { collection, addDoc, getDocs, doc, deleteDoc, setDoc} from 'firebase/firestore';
+import { collection, addDoc, doc, deleteDoc, setDoc} from 'firebase/firestore';
 import { categorySchema, type CategoryFormData } from './CategoryPageValidations';
 import { DeleteOutlined, EditOutlined  } from "@ant-design/icons";
+import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
 
 interface categoryItem extends CategoryFormData {
     id: string;
@@ -13,29 +14,11 @@ interface categoryItem extends CategoryFormData {
 
 export const CategoryPage = () => {
     
-    const [categoryList, setCategoryList] = useState<categoryItem[]>([]);
+   const { data: categoryList, loading, refetch } = useFirestoreQuery<categoryItem>("categorias");
     const [idBeingEdited, setIdBeingEdit] = useState<string | null>(null);
     const { control, handleSubmit, reset, formState: { errors } } = useForm<CategoryFormData>({
         resolver: zodResolver(categorySchema),
     });
-
-    useEffect(() => {
-        async function downloadCategory() {
-            try {
-                const colecaoRef = collection(db, "categorias");
-                const querySnapshot = await getDocs(colecaoRef);
-                const dados: categoryItem[] = [];
-                
-                querySnapshot.forEach((doc) => {
-                    dados.push({ id: doc.id, ...(doc.data() as CategoryFormData) });
-                });
-                setCategoryList(dados);
-            } catch {
-                console.error("Erro ao buscar categorias:");
-            }
-        }
-        downloadCategory();
-    }, []);
 
 
     const onSubmit = async (data: CategoryFormData) => {
@@ -43,20 +26,15 @@ export const CategoryPage = () => {
         if (idBeingEdited) {
           const docRef = doc(db, "categorias", idBeingEdited);
           await setDoc(docRef, data);
-          
-          setCategoryList((previous) =>
-            previous.map((item) => (item.id === idBeingEdited ? { id: idBeingEdited, ...data } : item))
-          );
           setIdBeingEdit(null);
           message.success("Categoria atualizada com sucesso!");
         } else {
           const colecaoRef = collection(db, "categorias");
-          const docRef = await addDoc(colecaoRef, data);
-          
-          setCategoryList((previous) => [...previous, { id: docRef.id, ...data }]);
+          await addDoc(colecaoRef, data);
           message.success("Categoria cadastrada com sucesso!");
         }
-        reset();    
+        reset();
+        await refetch();    
       }catch {
         message.error("Erro ao salvar os dados.");
       }
@@ -66,8 +44,8 @@ export const CategoryPage = () => {
       try {
         const docRef = doc(db, "categorias", id);
         await deleteDoc(docRef);
-        setCategoryList((previous) => previous.filter((item) => item.id !== id));
         message.success("Categoria removida!");
+        await refetch();
       } catch  {
         message.error("Erro ao remover.");
       }
@@ -110,7 +88,7 @@ export const CategoryPage = () => {
             )}
          </Form>
          <h3>Lista de Categorias</h3>
-         <Table dataSource={categoryList} columns={columns} rowKey="id" />
+        <Table dataSource={categoryList || []} columns={columns} rowKey="id" loading={loading} />
       </div>
     )
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -15,20 +15,14 @@ import {
   message,
 } from "antd";
 import { db } from "../../firebaseConfig";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  doc,
-  deleteDoc,
-  setDoc,
-} from "firebase/firestore";
+import { collection, addDoc, doc, deleteDoc, setDoc } from "firebase/firestore";
 import {
   estabelecimentoSchema,
   type EstabelecimentoFormData,
 } from "./establishmentPageValidations";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { withMask } from "use-mask-input";
+import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
 
 interface EstablishmentItem extends EstabelecimentoFormData {
   id: string;
@@ -56,14 +50,20 @@ const WeekDays = [
 type Hours = Record<(typeof WeekDays)[number], { abre: string; fecha: string }>;
 
 export const EstablishmentPage = () => {
-  const [establishmentPage, setestablishmentPage] = useState<
-    EstablishmentItem[]
-  >([]);
-  const [citys, setCity] = useState<OptionCity[]>([]);
+  // Busca dos estabelecimentos com controle de loading e refetch
+  const {
+    data: establishments,
+    loading: loadingEst,
+    refetch,
+  } = useFirestoreQuery<EstablishmentItem>("estabelecimentos");
+
+  // Busca de cidades e categorias para popular os Selects e a Tabela
+  const { data: citys } = useFirestoreQuery<OptionCity>("cidades");
+  const { data: categoryList } =
+    useFirestoreQuery<OptionCategory>("categorias");
   const [idBeingedit, setidBeingedit] = useState<string | null>(null);
   const [opensGeneral, setOpensgGeneral] = useState("");
   const [closeGeneral, setCloseGeneral] = useState("");
-  const [categoryList, setCategoryList] = useState<OptionCategory[]>([]);
 
   const defaultValues: Partial<EstabelecimentoFormData> = {
     ativo: true,
@@ -87,73 +87,24 @@ export const EstablishmentPage = () => {
     try {
       if (idBeingedit) {
         await setDoc(doc(db, "estabelecimentos", idBeingedit), data);
-        setestablishmentPage((ant) =>
-          ant.map((item) =>
-            item.id === idBeingedit ? { id: idBeingedit, ...data } : item,
-          ),
-        );
         setidBeingedit(null);
         message.success("Estabelecimento atualizado!");
       } else {
-        const docRef = await addDoc(collection(db, "estabelecimentos"), data);
-        setestablishmentPage((ant) => [...ant, { id: docRef.id, ...data }]);
+        await addDoc(collection(db, "estabelecimentos"), data);
         message.success("Estabelecimento cadastrado!");
       }
       reset(defaultValues);
+      await refetch();
     } catch {
       message.error("Erro ao salvar.");
     }
   };
 
-  useEffect(() => {
-    async function loadingDados() {
-      try {
-        const cidadesSnapshot = await getDocs(collection(db, "cidades"));
-        const listaCids: OptionCity[] = [];
-        cidadesSnapshot.forEach((doc) => {
-          listaCids.push({
-            id: doc.id,
-            nome: doc.data().nome,
-            estado: doc.data().estado,
-          });
-        });
-        setCity(listaCids);
-
-        const estSnapshot = await getDocs(collection(db, "estabelecimentos"));
-        const listaEsts: EstablishmentItem[] = [];
-        estSnapshot.forEach((doc) => {
-          listaEsts.push({
-            id: doc.id,
-            ...(doc.data() as EstabelecimentoFormData),
-          });
-        });
-        setestablishmentPage(listaEsts);
-      } catch {
-        message.error("Erro ao carregar dados do Firebase");
-      }
-    }
-    loadingDados();
-
-    async function loadCategories() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "categorias"));
-        const dados: OptionCategory[] = [];
-        querySnapshot.forEach((doc) => {
-          dados.push({ id: doc.id, nome: doc.data().nome });
-        });
-        setCategoryList(dados);
-      } catch (error) {
-        console.error("Erro ao buscar categorias para o select:", error);
-      }
-    }
-    loadCategories();
-  }, []);
-
   const removeEstablishment = async (id: string) => {
     try {
       await deleteDoc(doc(db, "estabelecimentos", id));
-      setestablishmentPage((ant) => ant.filter((item) => item.id !== id));
       message.success("Removido com sucesso!");
+      await refetch();
     } catch {
       message.error("Erro ao remover.");
     }
@@ -171,7 +122,9 @@ export const EstablishmentPage = () => {
       dataIndex: "categoria",
       key: "categoria",
       render: (categoriaId: string) => {
-        const categoria = categoryList.find((cat) => cat.id === categoriaId);
+        const categoria = (categoryList ?? []).find(
+          (cat) => cat.id === categoriaId,
+        );
         return categoria ? categoria.nome : categoriaId;
       },
     },
@@ -180,7 +133,7 @@ export const EstablishmentPage = () => {
       dataIndex: "cidade",
       key: "cidade",
       render: (cidadeId: string) => {
-        const cid = citys.find((c) => c.id === cidadeId);
+        const cid = (citys ?? []).find((c) => c.id === cidadeId);
         return cid ? `${cid.nome} - ${cid.estado}` : "Cidade não encontrada";
       },
     },
@@ -243,7 +196,7 @@ export const EstablishmentPage = () => {
                 control={control}
                 render={({ field }) => (
                   <Select {...field} placeholder="Selecione uma cidade">
-                    {citys.map((cid) => (
+                    {(citys ?? []).map((cid) => (
                       <Select.Option key={cid.id} value={cid.id}>
                         {cid.nome} - {cid.estado}
                       </Select.Option>
@@ -278,7 +231,7 @@ export const EstablishmentPage = () => {
                 control={control}
                 render={({ field }) => (
                   <Select {...field} placeholder="Selecione uma categoria">
-                    {categoryList.map((cat) => (
+                    {(categoryList ?? []).map((cat) => (
                       <Select.Option key={cat.id} value={cat.id}>
                         {cat.nome}
                       </Select.Option>
@@ -456,7 +409,7 @@ export const EstablishmentPage = () => {
       </Form>
 
       <h3>Estabelecimentos Cadastrados</h3>
-      <Table columns={columns} dataSource={establishmentPage} rowKey="id" />
+     <Table columns={ columns} dataSource={establishments || []} rowKey="id" loading={loadingEst} />
     </div>
   );
-};
+}
