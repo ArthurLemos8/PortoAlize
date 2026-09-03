@@ -1,24 +1,32 @@
 import {useState} from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Table, Space, message } from 'antd';
+import { Button, Form, Input, Table, Space, message, Select } from 'antd';
 import { db } from '../../firebaseConfig'; 
 import { collection, addDoc, doc, deleteDoc, setDoc} from 'firebase/firestore';
 import { categorySchema, type CategoryFormData } from './CategoryPageValidations';
 import { DeleteOutlined, EditOutlined  } from "@ant-design/icons";
 import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
+import { icons} from 'lucide-react';
 
 interface categoryItem extends CategoryFormData {
     id: string;
 };
 
 export const CategoryPage = () => {
-    
    const { data: categoryList, loading, refetch } = useFirestoreQuery<categoryItem>("categorias");
+
     const [idBeingEdited, setIdBeingEdit] = useState<string | null>(null);
-    const { control, handleSubmit, reset, formState: { errors } } = useForm<CategoryFormData>({
+
+    const { control, handleSubmit, reset, watch, formState: { errors } } = useForm<CategoryFormData>({
         resolver: zodResolver(categorySchema),
     });
+
+    const iconSelected = watch("icon");
+
+    const iconNames = Object.keys(icons);
+
+    const IconComponent = icons[iconSelected as keyof typeof icons];
 
 
     const onSubmit = async (data: CategoryFormData) => {
@@ -74,6 +82,8 @@ export const CategoryPage = () => {
         },
     ];
 
+
+
     return (
        <div style={{ padding: '24px', maxWidth: '100%' }}>
          <h2>{idBeingEdited ? "Editar Categoria" : "Cadastrar Nova Categoria"}</h2>
@@ -81,6 +91,22 @@ export const CategoryPage = () => {
          <Form layout="vertical" onFinish={handleSubmit(onSubmit)} style={{ marginBottom: '32px' }}>
             <Form.Item label="Nome da Categoria" validateStatus={errors.nome ? "error" : ""} help={errors.nome?.message}>
                 <Controller name="nome" control={control} render={({ field }) => <Input {...field} />} />
+            </Form.Item>
+            <Form.Item label="Icone" validateStatus={errors.icon ? "error" : ""} help={errors.icon?.message}>
+                <Controller
+                name="icon"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} placeholder="Selecione uma cidade" showSearch>
+                    {iconNames.map((icon) => (
+                      <Select.Option key={icon} value={icon}>
+                        {icon}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
+              />
+              {iconSelected && <IconComponent />} 
             </Form.Item>
             <Button type="primary" htmlType="submit">{idBeingEdited ? "Atualizar Categoria" : "Cadastrar Categoria"}</Button>
             {idBeingEdited && (
