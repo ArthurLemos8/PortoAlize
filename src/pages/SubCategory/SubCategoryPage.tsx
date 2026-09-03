@@ -5,23 +5,30 @@ import { Button, Form, Input, Table, Space, message, Select } from "antd";
 import { db } from "../../firebaseConfig";
 import { collection, addDoc, doc, deleteDoc, setDoc } from "firebase/firestore";
 import {
-  categorySchema,
-  type CategoryFormData,
-} from "./CategoryPageValidations";
+  subCategorySchema,
+  type SubCategoryFormData,
+} from "./SubCategoryPageValidations";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
 import { icons } from "lucide-react";
 
-interface categoryItem extends CategoryFormData {
+interface SubCategoryItem extends SubCategoryFormData {
   id: string;
 }
 
-export const CategoryPage = () => {
+interface CategoryItem {
+  id: string;
+  nome: string;
+  icon?: string;
+}
+
+export const SubCategoryPage = () => {
   const {
-    data: categoryList,
+    data: subCategoryList,
     loading,
     refetch,
-  } = useFirestoreQuery<categoryItem>("categorias");
+  } = useFirestoreQuery<SubCategoryItem>("subcategorias");
+  const { data: categoryList } = useFirestoreQuery<CategoryItem>("categorias");
 
   const [idBeingEdited, setIdBeingEdit] = useState<string | null>(null);
 
@@ -29,29 +36,22 @@ export const CategoryPage = () => {
     control,
     handleSubmit,
     reset,
-    watch,
     formState: { errors },
-  } = useForm<CategoryFormData>({
-    resolver: zodResolver(categorySchema),
+  } = useForm<SubCategoryFormData>({
+    resolver: zodResolver(subCategorySchema),
   });
 
-  const iconSelected = watch("icon");
-
-  const iconNames = Object.keys(icons);
-
-  const IconComponent = icons[iconSelected as keyof typeof icons];
-
-  const onSubmit = async (data: CategoryFormData) => {
+  const onSubmit = async (data: SubCategoryFormData) => {
     try {
       if (idBeingEdited) {
-        const docRef = doc(db, "categorias", idBeingEdited);
+        const docRef = doc(db, "subcategorias", idBeingEdited);
         await setDoc(docRef, data);
         setIdBeingEdit(null);
-        message.success("Categoria atualizada com sucesso!");
+        message.success("Subcategoria atualizada com sucesso!");
       } else {
-        const colecaoRef = collection(db, "categorias");
+        const colecaoRef = collection(db, "subcategorias");
         await addDoc(colecaoRef, data);
-        message.success("Categoria cadastrada com sucesso!");
+        message.success("Subcategoria cadastrada com sucesso!");
       }
       reset();
       await refetch();
@@ -60,54 +60,65 @@ export const CategoryPage = () => {
     }
   };
 
-  const removeCategory = async (id: string) => {
+  const removeSubCategory = async (id: string) => {
     try {
-      const docRef = doc(db, "categorias", id);
+      const docRef = doc(db, "subcategorias", id);
       await deleteDoc(docRef);
-      message.success("Categoria removida!");
+      message.success("Subcategoria removida!");
       await refetch();
     } catch {
       message.error("Erro ao remover.");
     }
   };
 
-  const editCategory = (item: categoryItem) => {
+  const editSubCategory = (item: SubCategoryItem) => {
     setIdBeingEdit(item.id);
     reset(item);
   };
 
   const columns = [
     {
-      title: "Nome da Categoria",
+      title: "Nome da Subcategoria",
       dataIndex: "nome",
       key: "nome",
     },
     {
-      title: "Icone",
-      dataIndex: "icon",
-      key: "icon",
-      render: (iconName: string) => {
-        const IconComponent = icons[iconName as keyof typeof icons];
-        return IconComponent ? <IconComponent size={18} /> : null;
+      title: "Categoria",
+      dataIndex: "categoriaId",
+      key: "categoriaId",
+      render: (categoriaId: string) => {
+        const categoria = (categoryList ?? []).find(
+          (cat) => cat.id === categoriaId,
+        );
+        const iconName = categoria?.icon as keyof typeof icons;
+        const IconComponent = icons[iconName];
+        return categoria ? (
+          <Space>
+            {IconComponent && <IconComponent size={18} />}
+            {categoria.nome}
+          </Space>
+        ) : (
+          categoriaId
+        );
       },
     },
     {
       title: "Ações",
       key: "actions",
-      render: (item: categoryItem) => (
+      render: (item: SubCategoryItem) => (
         <Space>
           <Button
             type="text"
             icon={<EditOutlined />}
             onClick={() => {
-              editCategory(item);
+              editSubCategory(item);
             }}
           ></Button>
           <Button
             type="text"
             danger
             icon={<DeleteOutlined />}
-            onClick={() => removeCategory(item.id)}
+            onClick={() => removeSubCategory(item.id)}
           ></Button>
         </Space>
       ),
@@ -116,7 +127,9 @@ export const CategoryPage = () => {
 
   return (
     <div style={{ padding: "24px", maxWidth: "100%" }}>
-      <h2>{idBeingEdited ? "Editar Categoria" : "Cadastrar Nova Categoria"}</h2>
+      <h2>
+        {idBeingEdited ? "Editar Subcategoria" : "Cadastrar Nova Subcategoria"}
+      </h2>
 
       <Form
         layout="vertical"
@@ -124,7 +137,7 @@ export const CategoryPage = () => {
         style={{ marginBottom: "32px" }}
       >
         <Form.Item
-          label="Nome da Categoria"
+          label="Nome da Subcategoria"
           validateStatus={errors.nome ? "error" : ""}
           help={errors.nome?.message}
         >
@@ -135,45 +148,26 @@ export const CategoryPage = () => {
           />
         </Form.Item>
         <Form.Item
-          label="Icone"
-          validateStatus={errors.icon ? "error" : ""}
-          help={errors.icon?.message}
+          label="Categoria Principal"
+          validateStatus={errors.categoriaId ? "error" : ""}
+          help={errors.categoriaId?.message}
         >
           <Controller
-            name="icon"
+            name="categoriaId"
             control={control}
             render={({ field }) => (
-              <Select
-                {...field}
-                placeholder="Selecione um ícone"
-                showSearch
-                optionFilterProp="value"
-              >
-                {iconNames.map((iconName) => {
-                  const LucideIcon = icons[iconName as keyof typeof icons];
-
-                  return (
-                    <Select.Option key={iconName} value={iconName}>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        {LucideIcon && <LucideIcon size={18} />}
-                        <span>{iconName}</span>
-                      </div>
-                    </Select.Option>
-                  );
-                })}
+              <Select {...field} placeholder="Selecione uma categoria">
+                {(categoryList ?? []).map((cat) => (
+                  <Select.Option key={cat.id} value={cat.id}>
+                    {cat.nome}
+                  </Select.Option>
+                ))}
               </Select>
             )}
           />
-          {iconSelected && <IconComponent style={{ marginTop: "8px" }} />}
         </Form.Item>
         <Button type="primary" htmlType="submit">
-          {idBeingEdited ? "Atualizar Categoria" : "Cadastrar Categoria"}
+          {idBeingEdited ? "Atualizar Subcategoria" : "Cadastrar Subcategoria"}
         </Button>
         {idBeingEdited && (
           <Button
@@ -188,9 +182,9 @@ export const CategoryPage = () => {
           </Button>
         )}
       </Form>
-      <h3>Lista de Categorias</h3>
+      <h3>Lista de Subcategorias</h3>
       <Table
-        dataSource={categoryList || []}
+        dataSource={subCategoryList || []}
         columns={columns}
         rowKey="id"
         loading={loading}

@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SubCategoryRouteImport } from './routes/subCategory'
 import { Route as EstablishmenRouteImport } from './routes/establishmen'
 import { Route as ContentRouteImport } from './routes/content'
 import { Route as CityRouteImport } from './routes/city'
 import { Route as CategoryRouteImport } from './routes/category'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SubCategoryRoute = SubCategoryRouteImport.update({
+  id: '/subCategory',
+  path: '/subCategory',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EstablishmenRoute = EstablishmenRouteImport.update({
   id: '/establishmen',
   path: '/establishmen',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
   '/establishmen': typeof EstablishmenRoute
+  '/subCategory': typeof SubCategoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
   '/establishmen': typeof EstablishmenRoute
+  '/subCategory': typeof SubCategoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,33 @@ export interface FileRoutesById {
   '/city': typeof CityRoute
   '/content': typeof ContentRoute
   '/establishmen': typeof EstablishmenRoute
+  '/subCategory': typeof SubCategoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/category' | '/city' | '/content' | '/establishmen'
+  fullPaths:
+    | '/'
+    | '/category'
+    | '/city'
+    | '/content'
+    | '/establishmen'
+    | '/subCategory'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/category' | '/city' | '/content' | '/establishmen'
-  id: '__root__' | '/' | '/category' | '/city' | '/content' | '/establishmen'
+  to:
+    | '/'
+    | '/category'
+    | '/city'
+    | '/content'
+    | '/establishmen'
+    | '/subCategory'
+  id:
+    | '__root__'
+    | '/'
+    | '/category'
+    | '/city'
+    | '/content'
+    | '/establishmen'
+    | '/subCategory'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,10 +105,18 @@ export interface RootRouteChildren {
   CityRoute: typeof CityRoute
   ContentRoute: typeof ContentRoute
   EstablishmenRoute: typeof EstablishmenRoute
+  SubCategoryRoute: typeof SubCategoryRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/subCategory': {
+      id: '/subCategory'
+      path: '/subCategory'
+      fullPath: '/subCategory'
+      preLoaderRoute: typeof SubCategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/establishmen': {
       id: '/establishmen'
       path: '/establishmen'
@@ -125,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   CityRoute: CityRoute,
   ContentRoute: ContentRoute,
   EstablishmenRoute: EstablishmenRoute,
+  SubCategoryRoute: SubCategoryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

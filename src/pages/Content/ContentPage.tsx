@@ -16,12 +16,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 import { Controller, useForm } from "react-hook-form";
 import { contentSchema, type ContentValues } from "./contentPageValidations";
 import { db } from "../../firebaseConfig";
-import {
-  collection,
-  addDoc,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
 
 const { Title } = Typography;
@@ -31,7 +26,11 @@ interface RegisterItem extends ContentValues {
 }
 
 export const ContentPage = () => {
-  const { data: registerList, loading, refetch } = useFirestoreQuery<RegisterItem>("cadastro");
+  const {
+    data: registerList,
+    loading,
+    refetch,
+  } = useFirestoreQuery<RegisterItem>("cadastro");
 
   const {
     control,
@@ -56,7 +55,7 @@ export const ContentPage = () => {
       });
       reset();
       await refetch();
-    } catch  {
+    } catch {
       notification.error({
         message: "Erro",
         description: "Erro ao realizar cadastro.",
@@ -65,15 +64,14 @@ export const ContentPage = () => {
   };
 
   const handleDelete = async (id: string) => {
-  try {
-    await deleteDoc(doc(db, "cadastro", id));
-    await refetch();
-    notification.success({ message: "Registro removido com sucesso." });
-  } catch {
-    notification.error({ message: "Erro ao remover registro." });
-  }
-};
-
+    try {
+      await deleteDoc(doc(db, "cadastro", id));
+      await refetch();
+      notification.success({ message: "Registro removido com sucesso." });
+    } catch {
+      notification.error({ message: "Erro ao remover registro." });
+    }
+  };
 
   return (
     <div style={{ padding: "12px" }}>
@@ -168,9 +166,11 @@ export const ContentPage = () => {
                         okText="Sim"
                         cancelText="Não"
                       >
-                        <Button type="primary" danger>
-                          <DeleteOutlined />
-                        </Button>
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                        ></Button>
                       </Popconfirm>
                     </Space>
                   ),

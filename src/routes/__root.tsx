@@ -1,5 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
-import { Home, TableOfContents, Building2, Store, SquareChartGantt } from "lucide-react";
+import {
+  Home,
+  TableOfContents,
+  Building2,
+  Store,
+  SquareChartGantt,
+  SquaresSubtract,
+} from "lucide-react";
 import {
   createRootRoute,
   Link,
@@ -27,20 +34,24 @@ export const RootComponent = () => {
     {
       key: "/city",
       label: <Link to="/city">Cidades</Link>,
-      icon: <Building2/>,
+      icon: <Building2 />,
     },
     {
       key: "/category",
       label: <Link to="/category">Categorias</Link>,
-      icon: <SquareChartGantt/>,
+      icon: <SquareChartGantt />,
     },
-    
+
     {
       key: "/establishmen",
       label: <Link to="/establishmen">Estabelecimentos</Link>,
-      icon: <Store/>,
-    }
-
+      icon: <Store />,
+    },
+    {
+      key: "/subCategory",
+      label: <Link to="/subCategory">SubCategorias</Link>,
+      icon: <SquaresSubtract />,
+    },
   ];
 
   return (
