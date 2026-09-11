@@ -1,13 +1,9 @@
-import { useState} from "react";
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Form, Input, InputNumber, Table, Space, message } from "antd";
 import { db } from "../../firebaseConfig";
-import {
-  doc,
-  deleteDoc,
-  setDoc,
-} from "firebase/firestore";
+import { doc, deleteDoc, collection, addDoc, setDoc } from "firebase/firestore";
 import { cidadeSchema, type CidadeFormData } from "./cityPageValidations";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
@@ -45,6 +41,7 @@ export const CityPage = () => {
         setIdBeingEdit(null);
         message.success("Cidade atualizada com sucesso!");
       } else {
+        await addDoc(collection(db, "cidades"), data);
         message.success("Cidade cadastrada com sucesso!");
       }
       reset();

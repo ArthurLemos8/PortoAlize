@@ -38,6 +38,11 @@ interface OptionCategory {
   nome: string;
 }
 
+interface OptionSubCategory {
+  id: string;
+  nome: string;
+}
+
 const WeekDays = [
   "segunda",
   "terça",
@@ -61,6 +66,8 @@ export const EstablishmentPage = () => {
   const { data: citys } = useFirestoreQuery<OptionCity>("cidades");
   const { data: categoryList } =
     useFirestoreQuery<OptionCategory>("categorias");
+  const { data: subCategoryList } =
+    useFirestoreQuery<OptionSubCategory>("subcategorias");
   const [idBeingedit, setidBeingedit] = useState<string | null>(null);
   const [opensGeneral, setOpensgGeneral] = useState("");
   const [closeGeneral, setCloseGeneral] = useState("");
@@ -126,6 +133,17 @@ export const EstablishmentPage = () => {
           (cat) => cat.id === categoriaId,
         );
         return categoria ? categoria.nome : categoriaId;
+      },
+    },
+    {
+      title: "SubCategoria",
+      dataIndex: "subcategoria",
+      key: "subcategoria",
+      render: (subcategoriaId: string) => {
+        const subcategoria = (subCategoryList ?? []).find(
+          (cat) => cat.id === subcategoriaId,
+        );
+        return subcategoria ? subcategoria.nome : subcategoriaId;
       },
     },
     {
@@ -232,6 +250,27 @@ export const EstablishmentPage = () => {
                 render={({ field }) => (
                   <Select {...field} placeholder="Selecione uma categoria">
                     {(categoryList ?? []).map((cat) => (
+                      <Select.Option key={cat.id} value={cat.id}>
+                        {cat.nome}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="SubCategoria"
+              validateStatus={errors.subcategoria ? "error" : ""}
+              help={errors.subcategoria?.message}
+            >
+              <Controller
+                name="subcategoria"
+                control={control}
+                render={({ field }) => (
+                  <Select {...field} placeholder="Selecione uma subcategoria">
+                    {(subCategoryList ?? []).map((cat) => (
                       <Select.Option key={cat.id} value={cat.id}>
                         {cat.nome}
                       </Select.Option>
@@ -409,7 +448,12 @@ export const EstablishmentPage = () => {
       </Form>
 
       <h3>Estabelecimentos Cadastrados</h3>
-     <Table columns={ columns} dataSource={establishments || []} rowKey="id" loading={loadingEst} />
+      <Table
+        columns={columns}
+        dataSource={establishments || []}
+        rowKey="id"
+        loading={loadingEst}
+      />
     </div>
   );
-}
+};

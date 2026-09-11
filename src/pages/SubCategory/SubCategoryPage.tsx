@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Form, Input, Table, Space, message, Select } from "antd";
+import { Button, Form, Input, Table, Space, message } from "antd";
 import { db } from "../../firebaseConfig";
 import { collection, addDoc, doc, deleteDoc, setDoc } from "firebase/firestore";
 import {
@@ -10,16 +10,9 @@ import {
 } from "./SubCategoryPageValidations";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useFirestoreQuery } from "../../hook/useFirestoreQuery";
-import { icons } from "lucide-react";
 
 interface SubCategoryItem extends SubCategoryFormData {
   id: string;
-}
-
-interface CategoryItem {
-  id: string;
-  nome: string;
-  icon?: string;
 }
 
 export const SubCategoryPage = () => {
@@ -28,7 +21,6 @@ export const SubCategoryPage = () => {
     loading,
     refetch,
   } = useFirestoreQuery<SubCategoryItem>("subcategorias");
-  const { data: categoryList } = useFirestoreQuery<CategoryItem>("categorias");
 
   const [idBeingEdited, setIdBeingEdit] = useState<string | null>(null);
 
@@ -83,26 +75,6 @@ export const SubCategoryPage = () => {
       key: "nome",
     },
     {
-      title: "Categoria",
-      dataIndex: "categoriaId",
-      key: "categoriaId",
-      render: (categoriaId: string) => {
-        const categoria = (categoryList ?? []).find(
-          (cat) => cat.id === categoriaId,
-        );
-        const iconName = categoria?.icon as keyof typeof icons;
-        const IconComponent = icons[iconName];
-        return categoria ? (
-          <Space>
-            {IconComponent && <IconComponent size={18} />}
-            {categoria.nome}
-          </Space>
-        ) : (
-          categoriaId
-        );
-      },
-    },
-    {
       title: "Ações",
       key: "actions",
       render: (item: SubCategoryItem) => (
@@ -145,25 +117,6 @@ export const SubCategoryPage = () => {
             name="nome"
             control={control}
             render={({ field }) => <Input {...field} />}
-          />
-        </Form.Item>
-        <Form.Item
-          label="Categoria Principal"
-          validateStatus={errors.categoriaId ? "error" : ""}
-          help={errors.categoriaId?.message}
-        >
-          <Controller
-            name="categoriaId"
-            control={control}
-            render={({ field }) => (
-              <Select {...field} placeholder="Selecione uma categoria">
-                {(categoryList ?? []).map((cat) => (
-                  <Select.Option key={cat.id} value={cat.id}>
-                    {cat.nome}
-                  </Select.Option>
-                ))}
-              </Select>
-            )}
           />
         </Form.Item>
         <Button type="primary" htmlType="submit">

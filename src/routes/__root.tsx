@@ -41,16 +41,16 @@ export const RootComponent = () => {
       label: <Link to="/category">Categorias</Link>,
       icon: <SquareChartGantt />,
     },
+    {
+      key: "/subCategory",
+      label: <Link to="/subCategory">SubCategorias</Link>,
+      icon: <SquaresSubtract />,
+    },
 
     {
       key: "/establishmen",
       label: <Link to="/establishmen">Estabelecimentos</Link>,
       icon: <Store />,
-    },
-    {
-      key: "/subCategory",
-      label: <Link to="/subCategory">SubCategorias</Link>,
-      icon: <SquaresSubtract />,
     },
   ];
 
