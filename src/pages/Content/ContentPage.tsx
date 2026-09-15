@@ -30,7 +30,7 @@ export const ContentPage = () => {
     data: registerList,
     loading,
     refetch,
-  } = useFirestoreQuery<RegisterItem>("cadastro");
+  } = useFirestoreQuery<RegisterItem>("conteudos");
 
   const {
     control,
@@ -40,14 +40,17 @@ export const ContentPage = () => {
   } = useForm({
     resolver: zodResolver(contentSchema),
     defaultValues: {
-      username: "",
-      description: "",
+      nome: "",
+      descricao: "",
+      autor: "",
+      data: "",
+      foto: "",
     },
   });
 
   const onSubmit = async (values: ContentValues) => {
     try {
-      const colecaocRef = collection(db, "cadastro");
+      const colecaocRef = collection(db, "conteudos");
       await addDoc(colecaocRef, values);
       notification.success({
         message: "Sucesso",
@@ -65,7 +68,7 @@ export const ContentPage = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "cadastro", id));
+      await deleteDoc(doc(db, "conteudos", id));
       await refetch();
       notification.success({ message: "Registro removido com sucesso." });
     } catch {
@@ -88,11 +91,11 @@ export const ContentPage = () => {
             <Form layout="vertical" autoComplete="off">
               <Form.Item
                 label="Nome"
-                validateStatus={errors.username ? "error" : ""}
-                help={errors.username?.message}
+                validateStatus={errors.nome ? "error" : ""}
+                help={errors.nome?.message}
               >
                 <Controller
-                  name="username"
+                  name="nome"
                   control={control}
                   render={({ field }) => (
                     <Input placeholder="Digite o nome..." {...field} />
@@ -102,11 +105,11 @@ export const ContentPage = () => {
 
               <Form.Item
                 label="Descrição"
-                validateStatus={errors.description ? "error" : ""}
-                help={errors.description?.message}
+                validateStatus={errors.descricao ? "error" : ""}
+                help={errors.descricao?.message}
               >
                 <Controller
-                  name="description"
+                  name="descricao"
                   control={control}
                   render={({ field }) => (
                     <Input.TextArea
@@ -114,6 +117,48 @@ export const ContentPage = () => {
                       placeholder="Digite a descrição..."
                       {...field}
                     />
+                  )}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Autor"
+                validateStatus={errors.autor ? "error" : ""}
+                help={errors.autor?.message}
+              >
+                <Controller
+                  name="autor"
+                  control={control}
+                  render={({ field }) => (
+                    <Input placeholder="Digite o autor..." {...field} />
+                  )}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Data"
+                validateStatus={errors.data ? "error" : ""}
+                help={errors.data?.message}
+              >
+                <Controller
+                  name="data"
+                  control={control}
+                  render={({ field }) => (
+                    <Input placeholder="Ex: 15/09/2026" {...field} />
+                  )}
+                />
+              </Form.Item>
+
+              <Form.Item
+                label="Foto"
+                validateStatus={errors.foto ? "error" : ""}
+                help={errors.foto?.message}
+              >
+                <Controller
+                  name="foto"
+                  control={control}
+                  render={({ field }) => (
+                    <Input placeholder="URL da imagem..." {...field} />
                   )}
                 />
               </Form.Item>
@@ -147,13 +192,23 @@ export const ContentPage = () => {
               columns={[
                 {
                   title: "Nome",
-                  dataIndex: "username",
+                  dataIndex: "nome",
                   key: "username",
                 },
                 {
                   title: "Descrição",
-                  dataIndex: "description",
+                  dataIndex: "descricao",
                   key: "description",
+                },
+                {
+                  title: "Autor",
+                  dataIndex: "autor",
+                  key: "autor",
+                },
+                {
+                  title: "Data",
+                  dataIndex: "data",
+                  key: "data",
                 },
                 {
                   title: "Ações",
