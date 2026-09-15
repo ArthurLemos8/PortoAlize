@@ -17,11 +17,11 @@ export const estabelecimentoSchema = z.object({
 
   horario_funcionamento: z.object({
     segunda: horarioDiaSchema,
-    terça: horarioDiaSchema,
+    terca: horarioDiaSchema,
     quarta: horarioDiaSchema,
     quinta: horarioDiaSchema,
     sexta: horarioDiaSchema,
-    sábado: horarioDiaSchema,
+    sabado: horarioDiaSchema,
     domingo: horarioDiaSchema,
   }),
 });

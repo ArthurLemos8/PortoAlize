@@ -45,11 +45,11 @@ interface OptionSubCategory {
 
 const WeekDays = [
   "segunda",
-  "terça",
+  "terca",
   "quarta",
   "quinta",
   "sexta",
-  "sábado",
+  "sabado",
   "domingo",
 ] as const;
 type Hours = Record<(typeof WeekDays)[number], { abre: string; fecha: string }>;
